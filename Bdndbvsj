@@ -1,15 +1,31 @@
 local Players = game:GetService("Players")
-local Humanoid = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") or Players.LocalPlayer.CharacterAdded:Wait():WaitForChild("Humanoid")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local MarketplaceService = game:GetService("MarketplaceService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local rootPart = character:WaitForChild("HumanoidRootPart")
+local humanoid = character:WaitForChild("Humanoid")
+
+local hitbox = Instance.new("Part")
+hitbox.Name = "CustomHitbox"
+hitbox.Size = rootPart.Size
+hitbox.Transparency = 0.5
+hitbox.CanCollide = false
+hitbox.Anchored = true
+hitbox.Parent = workspace
 
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "EmoteSearchMenu"
+screenGui.Name = "CompleteMenuGui"
 screenGui.ResetOnSpawn = false
-screenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
 
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 320, 0, 420)
-mainFrame.Position = UDim2.new(0.5, -160, 0.5, -210)
-mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 320, 0, 480)
+mainFrame.Position = UDim2.new(0.5, -160, 0.5, -240)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
 mainFrame.Draggable = true
@@ -19,18 +35,101 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 10)
 corner.Parent = mainFrame
 
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 40)
-title.BackgroundTransparency = 1
-title.Text = "Buscador de Emotes"
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextSize = 18
-title.Font = Enum.Font.SourceSansBold
-title.Parent = mainFrame
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 40)
+titleLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+titleLabel.Text = "Menú Principal - Hitbox & Emotes"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 16
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 10)
+titleCorner.Parent = titleLabel
+
+local toggleLabel = Instance.new("TextLabel")
+toggleLabel.Size = UDim2.new(0, 150, 0, 30)
+toggleLabel.Position = UDim2.new(0, 15, 0, 50)
+toggleLabel.BackgroundTransparency = 1
+toggleLabel.Text = "Invencible (3000s):"
+toggleLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+toggleLabel.TextSize = 14
+toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+toggleLabel.Font = Enum.Font.SourceSans
+toggleLabel.Parent = mainFrame
+
+local toggleBackground = Instance.new("Frame")
+toggleBackground.Size = UDim2.new(0, 50, 0, 24)
+toggleBackground.Position = UDim2.new(1, -65, 0, 53)
+toggleBackground.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
+toggleBackground.BorderSizePixel = 0
+toggleBackground.Parent = mainFrame
+
+local toggleBgCorner = Instance.new("UICorner")
+toggleBgCorner.CornerRadius = UDim.new(1, 0)
+toggleBgCorner.Parent = toggleBackground
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 20, 0, 20)
+toggleButton.Position = UDim2.new(0, 2, 0.5, -10)
+toggleButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+toggleButton.BorderSizePixel = 0
+toggleButton.Text = ""
+toggleButton.Parent = toggleBackground
+
+local toggleBtnCorner = Instance.new("UICorner")
+toggleBtnCorner.CornerRadius = UDim.new(1, 0)
+toggleBtnCorner.Parent = toggleButton
+
+local sliderTitle = Instance.new("TextLabel")
+sliderTitle.Size = UDim2.new(1, -30, 0, 20)
+sliderTitle.Position = UDim2.new(0, 15, 0, 85)
+sliderTitle.BackgroundTransparency = 1
+sliderTitle.Text = "Tamaño Hitbox"
+sliderTitle.TextColor3 = Color3.fromRGB(220, 220, 220)
+sliderTitle.TextSize = 14
+sliderTitle.TextXAlignment = Enum.TextXAlignment.Left
+sliderTitle.Font = Enum.Font.SourceSans
+sliderTitle.Parent = mainFrame
+
+local sliderFrame = Instance.new("Frame")
+sliderFrame.Size = UDim2.new(1, -30, 0, 8)
+sliderFrame.Position = UDim2.new(0, 15, 0, 115)
+sliderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
+sliderFrame.BorderSizePixel = 0
+sliderFrame.Parent = mainFrame
+
+local sliderFrameCorner = Instance.new("UICorner")
+sliderFrameCorner.CornerRadius = UDim.new(1, 0)
+sliderFrameCorner.Parent = sliderFrame
+
+local sliderButton = Instance.new("TextButton")
+sliderButton.Size = UDim2.new(0, 16, 0, 16)
+sliderButton.Position = UDim2.new(1, -8, 0.5, -8)
+sliderButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+sliderButton.BorderSizePixel = 0
+sliderButton.Text = ""
+sliderButton.Parent = sliderFrame
+
+local sliderBtnCorner = Instance.new("UICorner")
+sliderBtnCorner.CornerRadius = UDim.new(1, 0)
+sliderBtnCorner.Parent = sliderButton
+
+local emoteTitle = Instance.new("TextLabel")
+emoteTitle.Size = UDim2.new(1, -30, 0, 20)
+emoteTitle.Position = UDim2.new(0, 15, 0, 135)
+emoteTitle.BackgroundTransparency = 1
+emoteTitle.Text = "Buscador de Emotes"
+emoteTitle.TextColor3 = Color3.fromRGB(220, 220, 220)
+emoteTitle.TextSize = 14
+emoteTitle.TextXAlignment = Enum.TextXAlignment.Left
+emoteTitle.Font = Enum.Font.SourceSansBold
+emoteTitle.Parent = mainFrame
 
 local searchBox = Instance.new("TextBox")
-searchBox.Size = UDim2.new(1, -30, 0, 35)
-searchBox.Position = UDim2.new(0, 15, 0, 45)
+searchBox.Size = UDim2.new(1, -30, 0, 32)
+searchBox.Position = UDim2.new(0, 15, 0, 160)
 searchBox.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
 searchBox.BorderSizePixel = 0
 searchBox.PlaceholderText = "Buscar emote..."
@@ -46,8 +145,8 @@ searchCorner.CornerRadius = UDim.new(0, 6)
 searchCorner.Parent = searchBox
 
 local scrollingFrame = Instance.new("ScrollingFrame")
-scrollingFrame.Size = UDim2.new(1, -20, 1, -95)
-scrollingFrame.Position = UDim2.new(0, 10, 0, 90)
+scrollingFrame.Size = UDim2.new(1, -20, 1, -205)
+scrollingFrame.Position = UDim2.new(0, 10, 0, 200)
 scrollingFrame.BackgroundTransparency = 1
 scrollingFrame.BorderSizePixel = 0
 scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -59,50 +158,117 @@ uiList.Padding = UDim.new(0, 6)
 uiList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 uiList.Parent = scrollingFrame
 
-local emotesData = {
-	{name = "Baile Chistoso", id = "rbxassetid://507771019"},
-	{name = "Hola / Saludo", id = "rbxassetid://507770677"},
-	{name = "Aliento", id = "rbxassetid://507770453"},
-	{name = "Aplaudir", id = "rbxassetid://507770239"},
-	{name = "Punto y burla", id = "rbxassetid://507770950"},
-	{name = "Baile Hip Hop", id = "rbxassetid://5918726674"},
-	{name = "Baile Line Dance", id = "rbxassetid://5918727446"},
-	{name = "Ritmo Animado", id = "rbxassetid://5918728267"},
-	{name = "Postura Heroica", id = "rbxassetid://6161561732"},
-	{name = "Ritmo Urbano", id = "rbxassetid://5918738374"},
-}
+local isInvincible = false
+local isDraggingSlider = false
+local minSize = Vector3.new(0.5, 0.5, 0.5)
+local maxSize = rootPart.Size
+
+RunService.RenderStepped:Connect(function()
+	if not rootPart or not hitbox then return end
+	if isInvincible then
+		hitbox.CFrame = rootPart.CFrame + (rootPart.CFrame.LookVector * 3000)
+	else
+		hitbox.CFrame = rootPart.CFrame
+	end
+end)
+
+toggleButton.MouseButton1Click:Connect(function()
+	isInvincible = not isInvincible
+	if isInvincible then
+		toggleBackground.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
+		toggleButton:TweenPosition(UDim2.new(1, -22, 0.5, -10), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
+	else
+		toggleBackground.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
+		toggleButton:TweenPosition(UDim2.new(0, 2, 0.5, -10), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
+	end
+end)
+
+local function UpdateSlider(input)
+	local sliderPos = sliderFrame.AbsolutePosition.X
+	local sliderLen = sliderFrame.AbsoluteSize.X
+	local mouseX = input.Position.X
+	local percentage = math.clamp((mouseX - sliderPos) / sliderLen, 0, 1)
+	sliderButton.Position = UDim2.new(percentage, -8, 0.5, -8)
+	local newSize = minSize:Lerp(maxSize, percentage)
+	if hitbox then
+		hitbox.Size = newSize
+	end
+end
+
+sliderButton.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		isDraggingSlider = true
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		isDraggingSlider = false
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if isDraggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		UpdateSlider(input)
+	end
+end)
+
+local equippedEmotes = {}
+pcall(function()
+	local desc = humanoid:GetAppliedDescription()
+	local emotes = desc:GetEmotes()
+	for name, idList in pairs(emotes) do
+		if #idList > 0 then
+			table.insert(equippedEmotes, {name = name, id = idList[1]})
+		end
+	end
+end)
+
+if #equippedEmotes == 0 then
+	equippedEmotes = {
+		{name = "Baile Chistoso", id = 507771019},
+		{name = "Saludo", id = 507770677},
+		{name = "Aplaudir", id = 507770239},
+		{name = "Alegría", id = 507770453},
+		{name = "Burla", id = 507770950}
+	}
+end
 
 local currentTrack = nil
-
 local function playEmote(id)
 	if currentTrack then
 		currentTrack:Stop()
 	end
-	local anim = Instance.new("Animation")
-	anim.AnimationId = id
-	local animator = Humanoid:FindFirstChildOfClass("Animator") or Instance.new("Animator", Humanoid)
-	currentTrack = animator:LoadAnimation(anim)
-	currentTrack:Play()
+	local success, err = pcall(function()
+		currentTrack = humanoid:PlayEmoteAndGet関節Track and humanoid:PlayEmoteAndGetTrack(tostring(id)) or nil
+	end)
+	if not success or not currentTrack then
+		local anim = Instance.new("Animation")
+		anim.AnimationId = "rbxassetid://" .. tostring(id)
+		local animator = humanoid:FindFirstChildOfClass("Animator") or Instance.new("Animator", humanoid)
+		currentTrack = animator:LoadAnimation(anim)
+		currentTrack:Play()
+	end
 end
 
-local function updateList(filter)
+local function updateEmoteList(filter)
 	for _, child in ipairs(scrollingFrame:GetChildren()) do
 		if child:IsA("TextButton") then
--			child:Destroy()
+			child:Destroy()
 		end
 	end
 
 	local count = 0
-	for _, emote in ipairs(emotesData) do
+	for _, emote in ipairs(equippedEmotes) do
 		if filter == "" or string.find(string.lower(emote.name), string.lower(filter)) then
 			count = count + 1
 			local btn = Instance.new("TextButton")
-			btn.Size = UDim2.new(1, -10, 0, 40)
-			btn.BackgroundColor3 = Color3.fromRGB(55, 55, 62)
+			btn.Size = UDim2.new(1, -10, 0, 36)
+			btn.BackgroundColor3 = Color3.fromRGB(50, 50, 58)
 			btn.BorderSizePixel = 0
 			btn.Text = "  " .. emote.name
 			btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-			btn.TextSize = 15
+			btn.TextSize = 14
 			btn.Font = Enum.Font.SourceSansSemibold
 			btn.TextXAlignment = Enum.TextXAlignment.Left
 			btn.Parent = scrollingFrame
@@ -116,11 +282,18 @@ local function updateList(filter)
 			end)
 		end
 	end
-	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, count * 46)
+	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, count * 42)
 end
 
 searchBox:GetPropertyChangedSignal("Text"):Connect(function()
-	updateList(searchBox.Text)
+	updateEmoteList(searchBox.Text)
 end)
 
-updateList("")
+updateEmoteList("")
+
+player.CharacterAdded:Connect(function(newChar)
+	character = newChar
+	rootPart = character:WaitForChild("HumanoidRootPart")
+	humanoid = character:WaitForChild("Humanoid")
+	maxSize = rootPart.Size
+end)
