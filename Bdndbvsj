@@ -1,0 +1,126 @@
+local Players = game:GetService("Players")
+local Humanoid = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") or Players.LocalPlayer.CharacterAdded:Wait():WaitForChild("Humanoid")
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "EmoteSearchMenu"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 320, 0, 420)
+mainFrame.Position = UDim2.new(0.5, -160, 0.5, -210)
+mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = mainFrame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundTransparency = 1
+title.Text = "Buscador de Emotes"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 18
+title.Font = Enum.Font.SourceSansBold
+title.Parent = mainFrame
+
+local searchBox = Instance.new("TextBox")
+searchBox.Size = UDim2.new(1, -30, 0, 35)
+searchBox.Position = UDim2.new(0, 15, 0, 45)
+searchBox.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
+searchBox.BorderSizePixel = 0
+searchBox.PlaceholderText = "Buscar emote..."
+searchBox.Text = ""
+searchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+searchBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+searchBox.TextSize = 14
+searchBox.Font = Enum.Font.SourceSans
+searchBox.Parent = mainFrame
+
+local searchCorner = Instance.new("UICorner")
+searchCorner.CornerRadius = UDim.new(0, 6)
+searchCorner.Parent = searchBox
+
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, -20, 1, -95)
+scrollingFrame.Position = UDim2.new(0, 10, 0, 90)
+scrollingFrame.BackgroundTransparency = 1
+scrollingFrame.BorderSizePixel = 0
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollingFrame.ScrollBarThickness = 6
+scrollingFrame.Parent = mainFrame
+
+local uiList = Instance.new("UIListLayout")
+uiList.Padding = UDim.new(0, 6)
+uiList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+uiList.Parent = scrollingFrame
+
+local emotesData = {
+	{name = "Baile Chistoso", id = "rbxassetid://507771019"},
+	{name = "Hola / Saludo", id = "rbxassetid://507770677"},
+	{name = "Aliento", id = "rbxassetid://507770453"},
+	{name = "Aplaudir", id = "rbxassetid://507770239"},
+	{name = "Punto y burla", id = "rbxassetid://507770950"},
+	{name = "Baile Hip Hop", id = "rbxassetid://5918726674"},
+	{name = "Baile Line Dance", id = "rbxassetid://5918727446"},
+	{name = "Ritmo Animado", id = "rbxassetid://5918728267"},
+	{name = "Postura Heroica", id = "rbxassetid://6161561732"},
+	{name = "Ritmo Urbano", id = "rbxassetid://5918738374"},
+}
+
+local currentTrack = nil
+
+local function playEmote(id)
+	if currentTrack then
+		currentTrack:Stop()
+	end
+	local anim = Instance.new("Animation")
+	anim.AnimationId = id
+	local animator = Humanoid:FindFirstChildOfClass("Animator") or Instance.new("Animator", Humanoid)
+	currentTrack = animator:LoadAnimation(anim)
+	currentTrack:Play()
+end
+
+local function updateList(filter)
+	for _, child in ipairs(scrollingFrame:GetChildren()) do
+		if child:IsA("TextButton") then
+-			child:Destroy()
+		end
+	end
+
+	local count = 0
+	for _, emote in ipairs(emotesData) do
+		if filter == "" or string.find(string.lower(emote.name), string.lower(filter)) then
+			count = count + 1
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1, -10, 0, 40)
+			btn.BackgroundColor3 = Color3.fromRGB(55, 55, 62)
+			btn.BorderSizePixel = 0
+			btn.Text = "  " .. emote.name
+			btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+			btn.TextSize = 15
+			btn.Font = Enum.Font.SourceSansSemibold
+			btn.TextXAlignment = Enum.TextXAlignment.Left
+			btn.Parent = scrollingFrame
+
+			local btnCorner = Instance.new("UICorner")
+			btnCorner.CornerRadius = UDim.new(0, 6)
+			btnCorner.Parent = btn
+
+			btn.MouseButton1Click:Connect(function()
+				playEmote(emote.id)
+			end)
+		end
+	end
+	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, count * 46)
+end
+
+searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+	updateList(searchBox.Text)
+end)
+
+updateList("")
